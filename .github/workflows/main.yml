@@ -1,0 +1,44 @@
+name: Deploy Nginx with Terraform
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+  pull_request:
+    branches:
+      - main  # Trigger on pull requests to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Terraform CLI
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      # Step 3: Install Docker
+      - name: Install Docker
+        uses: docker/setup-buildx-action@v2
+
+      # Step 4: Initialize Terraform
+      - name: Terraform Init
+        run: terraform init
+
+      # Step 5: Terraform Plan (optional step to review what changes will be made)
+      - name: Terraform Plan
+        run: terraform plan
+
+      # Step 6: Apply Terraform to provision resources
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+
+      # Step 7: Verify Nginx container is running
+      - name: Verify Nginx container
+        run: docker ps | grep tutorial
